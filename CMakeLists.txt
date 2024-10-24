@@ -1,73 +1,38 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.10)
 
-project(particles)
+project(Particles)
 
-if(NOT IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/ext/sfml")
-  message(FATAL_ERROR "Missing SFML repository!"
-  	"Particles depends on the SFML library and has to be cloned with the --recursive flag."
-    "Fix by calling \"git submodule update --init --recursive\"")
-endif()
+set(CMAKE_CXX_STANDARD 11)
 
-option(PARTICLES_BUILD_DEMO "Build demo application?" OFF)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-if(WIN32)
-	include(CheckCXXCompilerFlag)
-	CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-	CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-	if(COMPILER_SUPPORTS_CXX11)
-	    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-	elseif(COMPILER_SUPPORTS_CXX0X)
-	    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-	else()
-	        message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-	endif()
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -std=c++11")
-else()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
-endif()
+include(FetchContent)
 
-if (MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-endif()
+FetchContent_Declare(
+  SFML
+  GIT_REPOSITORY https://github.com/SFML/SFML.git
+  GIT_TAG 2.6.1
+)
+FetchContent_MakeAvailable(SFML)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
-
-add_subdirectory("${PROJECT_SOURCE_DIR}/ext/sfml")
-
-include_directories(
-	"${PROJECT_SOURCE_DIR}/ext/sfml/include"
-	"${PROJECT_SOURCE_DIR}"
+set(PARTICLES_HEADERS
+    "${PROJECT_SOURCE_DIR}/Particles/ParticleData.h"
+    "${PROJECT_SOURCE_DIR}/Particles/ParticleGenerator.h"
+    "${PROJECT_SOURCE_DIR}/Particles/ParticleSystem.h"
+    "${PROJECT_SOURCE_DIR}/Particles/ParticleUpdater.h"
+    "${PROJECT_SOURCE_DIR}/Particles/ParticleSpawner.h"
 )
 
-add_library(particles STATIC
-	"${PROJECT_SOURCE_DIR}/Particles/ParticleData.cpp"
-	"${PROJECT_SOURCE_DIR}/Particles/ParticleGenerator.cpp"
-	"${PROJECT_SOURCE_DIR}/Particles/ParticleSystem.cpp"
-	"${PROJECT_SOURCE_DIR}/Particles/ParticleUpdater.cpp"
-	"${PROJECT_SOURCE_DIR}/Particles/ParticleSpawner.cpp"
+set(PARTICLES_SRC
+    "${PROJECT_SOURCE_DIR}/Particles/ParticleData.cpp"
+    "${PROJECT_SOURCE_DIR}/Particles/ParticleGenerator.cpp"
+    "${PROJECT_SOURCE_DIR}/Particles/ParticleSystem.cpp"
+    "${PROJECT_SOURCE_DIR}/Particles/ParticleUpdater.cpp"
+    "${PROJECT_SOURCE_DIR}/Particles/ParticleSpawner.cpp"
 )
 
-target_link_libraries(particles sfml-system sfml-graphics)
-
-if (PARTICLES_BUILD_DEMO)
-
-	include_directories(
-		"${PROJECT_SOURCE_DIR}/ext/imgui"
-		"${PROJECT_SOURCE_DIR}/ext/imgui-sfml"
-		"${PROJECT_SOURCE_DIR}/demo/imgui-custom.h"
-	)
-
-	add_executable(demo
-		"${PROJECT_SOURCE_DIR}/demo/main.cpp"
-		"${PROJECT_SOURCE_DIR}/demo/imgui-custom.cpp"
-		"${PROJECT_SOURCE_DIR}/ext/imgui/imgui.cpp"
-		"${PROJECT_SOURCE_DIR}/ext/imgui/imgui_draw.cpp"
-		"${PROJECT_SOURCE_DIR}/ext/imgui/imgui_demo.cpp"
-		"${PROJECT_SOURCE_DIR}/ext/imgui-sfml/imgui-SFML.cpp"
-	)
-
-	target_link_libraries(demo sfml-window particles)
-
-	file(COPY demo/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-endif()
+add_library(Particles-s STATIC ${PARTICLES_SRC} ${PARTICLES_HEADERS})
+target_include_directories(Particles-s PUBLIC "${PROJECT_SOURCE_DIR}/")
+target_link_libraries(Particles-s sfml-system sfml-graphics)

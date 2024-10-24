@@ -1,2 +1,57 @@
-build
-.DS_Store
+# ? valgrind
+vgcore.*
+
+# ? obj
+*.o
+
+# ? lib
+*.a
+lib/
+
+# ? executable
+*.out
+
+# ? coverage
+*.gcda
+*.gcno
+*.gcov
+
+*.zip
+*.tar.gz
+
+# ? tmp
+*~
+\#*#
+.cache
+log.bin
+
+# ? vscode
+.vscode/
+
+# ? clion
+.idea/
+peda-session*
+
+# ? compilation database
+compile_commands.json
+
+build*/
+bin/
+.clangd
+
+docs/html
+
+# ? CMAKE
+cmake_install.cmake
+CMakeCache.txt
+Makefile
+CMakeFiles/
+docs/doxygen
+CMakeDoxyfile.in
+CMakeDoxygenDefaults.cmake
+_deps
+CPM_modules
+cmake-build-debug/
+CPackConfig.cmake
+CPackSourceConfig.cmake
+cpm-package-lock.cmake
